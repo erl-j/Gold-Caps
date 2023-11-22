@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <style>
+        body {
+            margin: 64px;
+        }
+
+        .hide {
+        color: transparent;
+        transition: color 0.5s ease-in-out;
+        }
+            
+        .on-hover:hover + .hide,
+        .on-hover:hover + .hide+.hide {
+        display: block;
+        color: black;
+        }
+
+        .audio-piano-roll {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            /* align-items: center; */
+
+        }
+        
+        .sample-container {
+            /* Adjust color and thickness as needed */
+            /* border-bottom: 1px solid black; */
+            /* Adjust color and thickness as needed */
+            padding: 4px;
+            padding-left: 2em;
+            /* add left border */
+            border-left: 4px solid lightgray;
+            margin-bottom: 4em;
+        }
+
+        .piano-roll {
+            border: 1px solid black;
+            transform: scaleY(-1);
+            width: 300px;
+        }
+    </style>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <img src="./misc/logo.svg" alt="textsynth logo" width="200" height="200"> -->
+    
+</head>
+
+<body>
+    <h2>
+        Gold-Caps <img src="./misc/goldcaps_logo.svg" alt="goldcaps logo" height="20em">
+    </h2>
+    <p>
+        Welcome to the demo page accompanying the <a href="https://github.com/erl-j/Gold-Caps">Gold-Caps dataset
+            repository</a>.
+    </p>
+    <p>
+        This page demonstrates the use of the "gpt-4-1106-preview" OpenAI API endpoint for generating captions with a prompt
+        solely referencing the track title and artist name.
+    </p>
+    <hr>
+    <div>
+        <h3>Prompts</h3>
+    
+        <p> 💬 General description: <i>Give a general description of the track &lt;title&gt; by artist_name> in one
+                sentence. Don't mention the title or artist.</i></p>
+    
+        <p> ☕️ Vibe: <i>Describe the vibe of the track &lt;title&gt; by artist_name> in one sentence. Don't mention the
+                title or artist.</i></p>
+    
+        <p> 🎼 Arrangement: <i>Describe the arrangement of the track &lt;title&gt; by artist_name> in one sentence.
+                Don't mention the title or artist.</i></p>
+    
+        <p> 🎛️ Production: <i>Describe the production style of the track &lt;title&gt; by artist_name> in one sentence.
+                Don't mention the title or artist.</i></p>
+    
+        <p> 🤖 AI instruction: <i>What prompt would you give an AI text-to-music generation if you wanted the output to
+                sound like the track &lt;title&gt; by artist_name>. One sentence only. Don't mention the title or
+                artist.</i></p>
+    
+        <p> 🎬 Movie scene: <i>Describe an imagined movie scene that would be set to the track &lt;title&gt; by
+                artist_name> in one sentence. Don't mention the title or artist.</i></p>
+    </div>
+    <hr>
+
+    <!-- Placeholder for audio examples -->
+    <h3>Example captions</h3>
+    <p>
+        Audio previews are provided for research purposes.
+    </p>
+    <div id="examplesContainer"></div>
+
+
+    <script src="demoData.js"></script>
+    <script>
+
+        const captionEmoji = {
+            "General description" : "💬",
+            "Vibe" : "☕️",
+            "Arrangement" : "🎼",
+            "Production" : "🎛️",
+            "AI instruction" : "🤖",
+            "Movie scene" : "🎬"
+        }
+
+        const session_timestamp = "2023-11-17-11-32-37"
+
+        // Reference to the container div
+        const examplesContainer = document.getElementById('examplesContainer');
+
+        data.forEach((sample,sampleIdx) => {
+
+            const sampleContainer = document.createElement('div')
+            sampleContainer.setAttribute("class", "sample-container")
+
+            const sampleNr = document.createElement('h3')
+            sampleNr.innerHTML = `Example #${sampleIdx} (hover to show track title and artist)`
+            sampleNr.setAttribute("class", "on-hover")
+            // make not selectable
+            sampleNr.setAttribute("style", "-webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none;  user-select: none;")
+
+            sampleContainer.appendChild(sampleNr);
+
+
+            const titleElement = document.createElement('p')
+            // set to on hover
+            
+            titleElement.innerHTML = `<b>Title:</b> ${sample.title}`
+            titleElement.setAttribute("class", "hide")
+            sampleContainer.appendChild(titleElement);
+
+            const artistElement = document.createElement('p')
+            artistElement.innerHTML = `<b>Artist</b>: ${sample.artist_name}`
+            artistElement.setAttribute("class", "hide")
+            sampleContainer.appendChild(artistElement);
+
+            const audioPianoRollDiv = document.createElement('div')
+
+            // set class
+            audioPianoRollDiv.setAttribute("class", "audio-piano-roll")
+        
+            //  // piano roll with class "piano-roll"
+            // const prElement = document.createElement('img')
+            // prElement.setAttribute("class", "piano-roll")
+            // prElement.setAttribute("src", "./web_assets/" + session_timestamp + "/png_piano_roll/" + sample.track_id + ".png")
+            // audioPianoRollDiv.appendChild(prElement);
+            
+
+            // audio
+            const audioElement = document.createElement('audio');
+            audioElement.controls = true;
+            // Create source element
+            const sourceElement = document.createElement('source');
+            sourceElement.src = "./web_assets/" + session_timestamp + "/mp3_previews/" + sample.track_id + ".mp3";
+            sourceElement.type = "audio/mp3";
+            // Append elements
+            audioElement.appendChild(sourceElement);
+            audioPianoRollDiv.appendChild(audioElement);
+
+            sampleContainer.append(audioPianoRollDiv);
+
+            // for (caption of ["Vibe"]) {
+            for (caption of Object.keys(sample.captions)) {
+                const captionElement = document.createElement('p')
+
+                captionElement.innerHTML = "<b>"+captionEmoji[caption] +" " + caption +"</b>" + ": " + sample.captions[caption]
+                sampleContainer.appendChild(captionElement);
+            }
+
+            examplesContainer.appendChild(sampleContainer)
+        });
+
+
+    </script>
+
+</body>
+</body>
+
+</html>
